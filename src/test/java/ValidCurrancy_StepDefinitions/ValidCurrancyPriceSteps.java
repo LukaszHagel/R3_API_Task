@@ -21,15 +21,16 @@ public class ValidCurrancyPriceSteps {
 
     @Given("I am on the website the URL {string}")
     public void setUpUrl(String url) {
+        // Configuring RestAssured to relax HTTPS validation
         RestAssured.config = RestAssured.config().sslConfig(new SSLConfig().relaxedHTTPSValidation());
         this.url = url;
     }
 
     @When("Get content")
     public void getResponse() {
+        // Sending GET request to the specified URL
         response = RestAssured.get(url);
     }
-
 
     @Then("Check that currency price is valid")
     public void checkThatCurrencyPriceIsValid() {
@@ -37,11 +38,13 @@ public class ValidCurrancyPriceSteps {
         assertNotNull("Response content cannot be empty", response.getBody().asString());
         assertEquals("Response status code must be 200", 200, response.getStatusCode());
 
-// Parsing response body to JsonObject
+        // Parsing response body to JsonObject
         JsonObject jsonObject = JsonParser.parseString(response.getBody().asString()).getAsJsonObject();
         double secondCurrentValue = jsonObject.getAsJsonObject("rates").get(secondCurrency).getAsDouble();
         System.out.println("Currency " + secondCurrency + ": " + secondCurrentValue);
         System.out.println("Fetched content: " + jsonObject);
+
+        // Asserting that currency price is valid (equal to 3.6725)
         Assert.assertTrue("Currency price is not valid", secondCurrentValue == 3.6725);
     }
 }
